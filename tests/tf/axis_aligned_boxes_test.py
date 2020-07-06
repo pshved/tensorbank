@@ -189,6 +189,59 @@ class IntersectionAreaTest(unittest.TestCase):
         np.testing.assert_almost_equal(got_via_box_utils, want)
 
 
+class IntersectionTest(unittest.TestCase):
+    def testIntersectionSimple(self):
+        # Test 1 batch of 2 boxes vs 3 boxes
+        boxes1 = np.array([
+            [[1.0, 1.5, 3.0, 3.0],
+             [2.0, 2.5, 4.0, 4.0],
+            ]
+        ])
+        boxes2 = np.array([
+            [[2.0, 2.5, 4.0, 4.0],
+             [1.0, 1.5, 3.0, 3.0],
+             [0.0, 0.0, 0.0, 0.0],
+            ],
+        ])
+
+        want = np.array([
+            [[ [2.0, 2.5, 3.0, 3.0], [1.0, 1.5, 3.0, 3.0], [1.0, 1.5, 0.0, 0.0]],
+             [ [2.0, 2.5, 4.0, 4.0], [2.0, 2.5, 3.0, 3.0], [2.0, 2.5, 0.0, 0.0]],
+            ],
+        ])
+
+        self.assertEqual(boxes1.shape, (1, 2, 4))
+        self.assertEqual(boxes2.shape, (1, 3, 4))
+        self.assertEqual(want.shape, (1, 2, 3, 4))
+
+        got = tb.axis_aligned_boxes.intersection(boxes1, boxes2)
+
+        np.testing.assert_array_almost_equal(got, want)
+
+    def testIntersectionOrthogonal(self):
+        # Test two boxes where the intersection doesn't have any common corners.
+        boxes1 = np.array([
+            [[2.0, 2.0, 3.0, 5.0],
+            ]
+        ])
+        boxes2 = np.array([
+            [[1.0, 3.0, 4.0, 4.0],
+            ],
+        ])
+
+        want = np.array([
+            [[ [2.0, 3.0, 3.0, 4.0] ]],
+        ])
+
+        self.assertEqual(boxes1.shape, (1, 1, 4))
+        self.assertEqual(boxes2.shape, (1, 1, 4))
+        self.assertEqual(want.shape, (1, 1, 1, 4))
+
+        got = tb.axis_aligned_boxes.intersection(boxes1, boxes2)
+
+        np.testing.assert_array_almost_equal(got, want)
+
+
 class AreaTest(unittest.TestCase):
     def compute_good_answer(self, boxes_1):
         r = []

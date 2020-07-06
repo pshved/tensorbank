@@ -6,22 +6,20 @@ with coordinate axes in the multidimensional Eucledian space R^D.  Axis-aligned
 boxes have fewer parameters than arbitrarily rotated boxes, which simplifies
 their learning and operations.
 
-A D-dimensional axis-aligned box in R^D is represented as a 2*D array of the
-coordinates of the bottom-left corner followed by the coordinates of the
-top-right corner. E.g. a two-dimensional box would have the coordinates laid
-out like so:
-
-    y1, x1, y2, x2
-
-Box format
+Box Format
 ----------
 
-Throughout this module, all boxes are defined in "matrix convention" also known
-as "ij-indexed".
+A D-dimensional axis-aligned box in R^D is represented as a 2*D array of the
+coordinates of the bottom-left corner followed by the coordinates of the
+top-right corner.  Throughout this module, all boxes are defined in "matrix
+convention" also known as "ij-indexed".
 
 In some other APIs (e.g. in Matplotlib), two-dimensional boxes are defined in
 the "cartesian" notation aka "xy".  Be very careful and transpose these boxes
-when using this API.
+when using this API. E.g. a two-dimensional box in the 'xy' format would have
+the following representation in this module:
+
+    y1, x1, y2, x2
 
 In a correct box, each component of the bottom corner will be smaller or equal
 than the corresponding component of top corner.  The boxes where this is not
@@ -43,18 +41,35 @@ def intersection_area(a, b):
     Args:
         a (Tensor [N x K x 2*D]): box coordinates.  N is batch size, K is the
             number of boxes in a batch, D is the dimension of the euclidian
-            space.  
+            space.  See also, `Box Format`_ above.
 
         b (Tensor [N x M x 2*D]): box coordinates, N is batch size, M is the
             number of boxes in a batch, D is the dimension of the euclidian
-            space.  See above for more details.
+            space.  See also, `Box Format`_ above.
 
     Returns:
-        Tensor [N x K x M] of pairwise box intersection areas using the
-        standard volume metric in R^D.
+        Tensor [N x K x M]: pairwise box intersection areas using the standard
+        volume metric in R^D.
 
-    Example:
-        tf.axis_aligned
+    """
+    return area(intersection(a, b))
+
+def intersection(a, b):
+    """Computes intersection box of each pair of boxes in a and b.
+
+    Args:
+        a (Tensor [N x K x 2*D]): box coordinates.  N is batch size, K is the
+            number of boxes in a batch, D is the dimension of the euclidian
+            space.  See also, `Box Format`_ above.
+
+        b (Tensor [N x M x 2*D]): box coordinates, N is batch size, M is the
+            number of boxes in a batch, D is the dimension of the euclidian
+            space.  See also, `Box Format`_ above.
+
+    Returns:
+        Tensor [N x K x M x 2*D]: pairwise box intersections.  If two boxes do
+        not intersect, their corresponding entry is a degenerate box of area 0.
+
     """
 
     a = tf.convert_to_tensor(a)
@@ -84,10 +99,8 @@ def intersection_area(a, b):
 
     i1 = tf.maximum(a1, b1)                        # N x K x M x D
     i2 = tf.minimum(a2, b2)                        # N x K x M x D
-    ds = tf.maximum(i2 - i1, tf.zeros_like(i1))    # N x K x M x D
 
-    # Got the intersection box lengths, now compute the area.
-    return tf.math.reduce_prod(ds, axis=3)         # N x K x M
+    return tf.concat( [i1, i2], axis=-1)           # N x K x M x 2D
 
 
 def area(a):
@@ -97,11 +110,7 @@ def area(a):
 
     Args:
         a (Tensor [...dims... x 2*D]): box coordinates where  D is the dimension of
-        the euclidian space.  Each box is represented as the coordinates of the
-        bottom left corner followed by the coordinates of the top right corner.
-        E.g. a two-dimensional box would have the coordinates laid out like so:
-
-            x1, y1, x2, y2
+            the euclidian space.  See also, `Box Format`_ above.
 
     Returns:
         Tensor [...dims...]: box volumes using the standard volume metric in R^D.
@@ -121,10 +130,12 @@ def area(a):
     top_size = shapes
     top_size[-1] = D
 
-    bottom = tf.slice(a, bottom_begin, bottom_size)
-    top = tf.slice(a, top_begin, top_size)
+    bottom = tf.slice(a, bottom_begin, bottom_size)     # ...dims... x D
+    top = tf.slice(a, top_begin, top_size)              # ...dims... x D
 
-    return tf.reduce_prod(top - bottom, axis=-1)
+    ds = tf.maximum(top - bottom, tf.zeros_like(top))   # ...dims... x D
+
+    return tf.reduce_prod(ds, axis=-1)                  # ...dims...
 
 def iou(a, b):
     """Computes intersection over union of each pair of boxes in a and b.
@@ -138,20 +149,16 @@ def iou(a, b):
     be NaN.
 
     Args:
-        a: Tensor [N x K x 2*D] of box coordinates.  N is batch size, K is the
-        number of boxes in a batch, D is the dimension of the euclidian space.
-        Each box is represented as the coordinates of the bottom left corner
-        followed by the coordinates of the top right corner.  E.g. a
-        two-dimensional box would have the coordinates laid out like so:
+        a (Tensor [N x K x 2*D]): box coordinates.  N is batch size, K is the
+            number of boxes in a batch, D is the dimension of the euclidian
+            space.  See also, `Box Format`_ above.
 
-            x1, y1, x2, y2
-
-        b: Tensor [N x M x 2D] of box coordinates, N is batch size, M is the
-        number of boxes in a batch, D is the dimension of the euclidian space.
-        See above for more details.
+        b (Tensor [N x M x 2D]): box coordinates, N is batch size, M is the
+            number of boxes in a batch, D is the dimension of the euclidian
+            space.  See also, `Box Format`_ above.
 
     Returns:
-        Tensor [N x K x M] of pairwise box IoUs using the standard volume
+        Tensor [N x K x M]: pairwise box IoUs using the standard volume
         metric in R^D.
     """
 
