@@ -11,13 +11,19 @@ they can be quickly executed on batched data in a variety of ML workflows.
 
 Every function is supported in one or more of the following backends:
 
-* TensorFlow
-* PyTorch
-* NumPy
+* TensorFlow  via ``import tensorbank.tf as tb``
+* PyTorch     via ``import tensorbank.torch as tb``  (currently, 0 functions
+  are supported).
+* NumPy       via ``import tensorbank.numpy as ntb`` (currently, 0 functions
+  are supported).
+
+Most funcions are designed to work with batched data to better utilize the GPU
+resources.
+
+Here's a simple example:
 
 .. code-block:: python
 
-    import tensorflow as tf
     import tensorbank.tf as tb
 
     tb.axis_aligned_boxes.area(
