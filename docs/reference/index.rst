@@ -6,3 +6,4 @@ API Reference
   :caption: Reference
 
   Boxes, Axis-aligned <axis_aligned_boxes>
+  Points <points>
