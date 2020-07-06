@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import unittest
 
@@ -287,6 +288,7 @@ class AreaTest(unittest.TestCase):
         got_via_box_utils = self.compute_good_answer(boxes1)
         np.testing.assert_almost_equal(got_via_box_utils, want1)
 
+
 class IoUTest(unittest.TestCase):
     def compute_good_answer(self, boxes_1, boxes_2):
         r = []
@@ -383,6 +385,30 @@ class IoUTest(unittest.TestCase):
         got = tb.axis_aligned_boxes.iou(boxes_1, boxes_2)
         np.testing.assert_almost_equal(got, want)
 
+
+class EvenlySpacedBoxesTest(unittest.TestCase):
+    def testSimple(self):
+
+        want = np.array(
+                [[ -5.,   -7.5,   5.,    7.5],
+                 [ -7.5,  -5.,    7.5,   5. ],
+                 [ -5.,  104.5,   5.,  119.5],
+                 [ -7.5, 107.,    7.5, 117. ],
+                 [107.,   -7.5, 117.,    7.5],
+                 [104.5,  -5.,  119.5,   5. ],
+                 [107.,  104.5, 117.,  119.5],
+                 [104.5, 107.,  119.5, 117. ]]
+        )
+
+        got = tb.axis_aligned_boxes.evenly_spaced(
+            [ (2,2) ],
+            [ [(10, 15), (15, 10)] ],
+            (224, 224),
+        )
+        np.set_printoptions(threshold=sys.maxsize)
+        print("Got: {}".format(got))
+
+        np.testing.assert_array_almost_equal(got, want)
 
 
 if __name__ == '__main__':
