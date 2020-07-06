@@ -1,6 +1,7 @@
 # TensorBank
 
 [![Build Status](https://travis-ci.com/pshved/tensorbank.svg?branch=master)](https://travis-ci.com/pshved/tensorbank)
+[![Documentation Status](https://readthedocs.org/projects/tensorbank/badge/?version=latest)](https://tensorbank.readthedocs.io/en/latest/?badge=latest)
 
 TensorBank is a collection of assorted algorithms expressed in Tensors.
 
@@ -33,5 +34,8 @@ tb.axis_aligned_boxes.area(
 >>> tf.Tensor([1 6], shape=(2,), dtype=int32)
 ```
 
-See API Reference on Readthedocs for more exampels and the comprehensive usage.
+See [API Reference on Readthedocs][api] for the full list of the algorithms
+offered and comprehensive usage examples.
+
+[api]: https://tensorbank.readthedocs.io/
 
