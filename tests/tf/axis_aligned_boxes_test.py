@@ -89,7 +89,7 @@ class NontfIoUTest(unittest.TestCase):
         self.assertAlmostEqual(1.0, nontf_iou(box1, box1))
         self.assertAlmostEqual(1.0 / 7.0, nontf_iou(box1, box2))
 
-class IntersectionTest(unittest.TestCase):
+class IntersectionAreaTest(unittest.TestCase):
     def compute_good_answer(self, boxes_1, boxes_2):
         r = []
         for batch_i, boxes_1_batch in enumerate(boxes_1):
@@ -161,6 +161,34 @@ class IntersectionTest(unittest.TestCase):
         got = tb.axis_aligned_boxes.intersection_area(boxes_1, boxes_2)
         np.testing.assert_almost_equal(got, want)
 
+    def testIntersectionEmpty(self):
+        # Test 1 batch of 2 boxes vs 3 boxes
+        boxes1 = np.array([
+            [[1.0, 1.5, 3.0, 3.0],
+             [2.0, 2.5, 4.0, 4.0],
+            ]
+        ])
+        boxes2 = np.array([
+            [[5.0, 6.0, 7.0, 8.0],
+             [0.0, 0.0, 1.0, 3.0],
+            ],
+        ])
+
+        want = np.array([
+            [[0.0, 0.0],
+             [0.0, 0.0],
+            ],
+        ])
+
+        got = tb.axis_aligned_boxes.intersection_area(boxes1, boxes2)
+
+        np.testing.assert_array_almost_equal(got, want)
+
+        # Test our box utils too.
+        got_via_box_utils = self.compute_good_answer(boxes1, boxes2)
+        np.testing.assert_almost_equal(got_via_box_utils, want)
+
+
 class AreaTest(unittest.TestCase):
     def compute_good_answer(self, boxes_1):
         r = []
@@ -197,8 +225,8 @@ class AreaTest(unittest.TestCase):
         self.assertEqual(want1.shape, (1, 2))
         self.assertEqual(want2.shape, (1, 3))
 
-        got1 = area(boxes1)
-        got2 = area(boxes2)
+        got1 = tb.axis_aligned_boxes.area(boxes1)
+        got2 = tb.axis_aligned_boxes.area(boxes2)
         np.testing.assert_array_almost_equal(got1, want1)
         np.testing.assert_array_almost_equal(got2, want2)
 
@@ -241,7 +269,7 @@ class IoUTest(unittest.TestCase):
         self.assertEqual(boxes2.shape, (1, 3, 4))
         self.assertEqual(want.shape, (1, 2, 3))
 
-        got = iou(boxes1, boxes2)
+        got = tb.axis_aligned_boxes.iou(boxes1, boxes2)
 
         np.testing.assert_array_almost_equal(got, want)
 
@@ -272,13 +300,13 @@ class IoUTest(unittest.TestCase):
         self.assertEqual(boxes2.shape, (1, 3, 4))
         self.assertEqual(want.shape, (1, 2, 3))
 
-        got = iou(boxes1, boxes2)
+        got = tb.axis_aligned_boxes.iou(boxes1, boxes2)
 
     def testIntersectionRandom1d(self):
         boxes_1, boxes_2 = make_random_boxes( (10, 2, 1), (10, 5, 1) )
         assert boxes_1.shape == (10, 2, 2)
         want = self.compute_good_answer(boxes_1, boxes_2)
-        got = iou(boxes_1, boxes_2)
+        got = tb.axis_aligned_boxes.iou(boxes_1, boxes_2)
         np.testing.assert_almost_equal(got, want)
 
     def testIntersectionRandom2d(self):
@@ -288,7 +316,7 @@ class IoUTest(unittest.TestCase):
         print("Computing the right answer using for-loops (will take 10 sec)...")
         want = self.compute_good_answer(boxes_1, boxes_2)
         print("Computing the right answer using Tensors...")
-        got = iou(boxes_1, boxes_2)
+        got = tb.axis_aligned_boxes.iou(boxes_1, boxes_2)
 
         found_nonzero = np.count_nonzero(got)
         print("done, found {} nonzero boxes!".format(found_nonzero))
@@ -299,7 +327,7 @@ class IoUTest(unittest.TestCase):
         boxes_1, boxes_2 = make_random_boxes( (17, 5, 3), (17, 11, 3) )
         assert boxes_1.shape == (17, 5, 6)
         want = self.compute_good_answer(boxes_1, boxes_2)
-        got = iou(boxes_1, boxes_2)
+        got = tb.axis_aligned_boxes.iou(boxes_1, boxes_2)
         np.testing.assert_almost_equal(got, want)
 
 

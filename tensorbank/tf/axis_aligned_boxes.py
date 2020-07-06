@@ -1,19 +1,39 @@
-"""Axis-aligned bounding box operations.
+"""Axis-aligned Bounding Boxes
+==============================
 
-All boxes in this module are represented in the tensor shape format.  A
-D-dimensional axis-aligned box in R^D is represented as a 2*D array of the
-coordinates of the bottom-left point followed by the coordinates of the
-top-right point.  The coordinates are ij-indexed.
+Axis-aligned rectangular bounding boxes have their sides, natuarally, aligned
+with coordinate axes in the multidimensional Eucledian space R^D.  Axis-aligned
+boxes have fewer parameters than arbitrarily rotated boxes, which simplifies
+their learning and operations.
 
-In a correct box, each component of the first point will be smaller or equal
-than each component of the second point.  The boxes where this is not the case
-are degenerate.  It is undefined what values are returned for the degenerate
-boxes.
+A D-dimensional axis-aligned box in R^D is represented as a 2*D array of the
+coordinates of the bottom-left corner followed by the coordinates of the
+top-right corner. E.g. a two-dimensional box would have the coordinates laid
+out like so:
 
+    y1, x1, y2, x2
+
+Box format
+----------
+
+Throughout this module, all boxes are defined in "matrix convention" also known
+as "ij-indexed".
+
+In some other APIs (e.g. in Matplotlib), two-dimensional boxes are defined in
+the "cartesian" notation aka "xy".  Be very careful and transpose these boxes
+when using this API.
+
+In a correct box, each component of the bottom corner will be smaller or equal
+than the corresponding component of top corner.  The boxes where this is not
+the case are degenerate.  It is undefined what values are returned for the
+degenerate boxes, but no exception will be raised.
+
+API
+----------
 """
 import tensorflow as tf
 
-def intersection(a, b):
+def intersection_area(a, b):
     """Computes intersection area of each pair of boxes in a and b.
 
     This function is primarily intended to use with batched anchor matching.
@@ -21,25 +41,27 @@ def intersection(a, b):
     with 0.0 and ignore the rows.
 
     Args:
-        a: Tensor [N x K x 2*D] of box coordinates.  N is batch size, K is the
-        number of boxes in a batch, D is the dimension of the euclidian space.
-        Each box is represented as the coordinates of the bottom left corner
-        followed by the coordinates of the top right corner.  E.g. a
-        two-dimensional box would have the coordinates laid out like so:
+        a (Tensor [N x K x 2*D]): box coordinates.  N is batch size, K is the
+            number of boxes in a batch, D is the dimension of the euclidian
+            space.  
 
-            x1, y1, x2, y2
-
-        b: Tensor [N x M x 2D] of box coordinates, N is batch size, M is the
-        number of boxes in a batch, D is the dimension of the euclidian space.
-        See above for more details.
+        b (Tensor [N x M x 2*D]): box coordinates, N is batch size, M is the
+            number of boxes in a batch, D is the dimension of the euclidian
+            space.  See above for more details.
 
     Returns:
         Tensor [N x K x M] of pairwise box intersection areas using the
         standard volume metric in R^D.
+
+    Example:
+        tf.axis_aligned
     """
 
+    a = tf.convert_to_tensor(a)
+    b = tf.convert_to_tensor(b)
+
     # Shape check
-    assert len(b.shape) == 3, "Wrong shape of b: {}".format(b.shape)
+    assert len(b.shape) == 3, "Wrong shape of b: got {} expect 3 components".format(b.shape)
     assert a.shape[0] == b.shape[0]
     assert a.shape[2] == b.shape[2]
     N, K, Dx2 = a.shape
@@ -74,7 +96,7 @@ def area(a):
     This function is primarily intended to use with batched box matching.
 
     Args:
-        a: Tensor [...dims... x 2*D] of box coordinates where  D is the dimension of
+        a (Tensor [...dims... x 2*D]): box coordinates where  D is the dimension of
         the euclidian space.  Each box is represented as the coordinates of the
         bottom left corner followed by the coordinates of the top right corner.
         E.g. a two-dimensional box would have the coordinates laid out like so:
@@ -82,7 +104,7 @@ def area(a):
             x1, y1, x2, y2
 
     Returns:
-        Tensor [...dims...] of box volumes using the standard volume metric in R^D.
+        Tensor [...dims...]: box volumes using the standard volume metric in R^D.
     """
     # Shape check
     shapes = list(a.shape)
@@ -142,7 +164,7 @@ def iou(a, b):
     D = Dx2 // 2
     assert 2*D == Dx2
 
-    i = intersection(a, b)   # N x K x M
+    i = intersection_area(a, b)   # N x K x M
     area_a = area(a)   # N x K
     area_b = area(b)   # N x M
 
@@ -155,32 +177,43 @@ def iou(a, b):
     return i / u
 
 
-def evenly_spaced_boxes(box_counts, box_sizes, image_shape, offset=None, dtype=tf.float32):
-    """Returns evenly spaced boxes in the image frame.
+def evenly_spaced(box_counts, box_sizes, image_shape, offset=None, dtype=tf.float32):
+    """Returns "anchor" boxes evenly spaced within the image.
 
     We assume that the image is D-dimensional, and give examples for 2
     dimensions.  The length of all lists is equivalent to the number of scales S
     in the detector.  Boxes for each scale are appended after the previous scale.
 
-    Please note that the box_sizes are defined in the tensor order.  It is
-    common to define bounding box sizes in the W,H order for 2D boxes. 
+    Please note that the box_sizes are defined in the tensor order.  This is
+    different from the common way to define the box sizes in the W,H order for
+    2D boxes. 
+
+    Example:
+
+        The following function will return 12 boxes: 3 boxes centered in each
+        point of a 2x2 grid:
+
+            tb.axis_aligned_boxes.evenly_spaced(
+                [ (2,2) ],
+                [ [(10, 15), (15, 10)] ],
+                (224, 224),
+            )
+
 
     Args:
-        box_counts: List (length S) of D-tuples that define number of elements
+        box_counts (List (length S) of D-tuples): number of elements
             in a grid along each axis for the box centers.  The first image is
             at the offset defined by offset.  Can be a tf.Tensor.
-        box_sizes: List (length S) of lists (length B_i) of lists (length D) of box
-            sizes for each scale.  Can be a tf.Tensor, but please be careful
-            when converting!
+        box_sizes (List (length S) of lists (length B_i) of lists (length D)):
+            box sizes for each scale.  This shoudn't be a Tensor since
+            different scales can have different number of anchors.
         image_shape: D-tuple that defines the overall image shape.  Can be a
             tf.Tensor.
         offset: List (length S) of D-tuples that define the offset of the first
             image from 0^D.  Can be a tf.Tensor.
 
     Returns:
-        Tensor [number_of_boxes x 2*D], where boxes are represented in the
-        x1,y1,x2,y2 format.  Note that this is the dimension-first format as
-        opposed to the WH format.
+        Tensor [number_of_boxes x 2*D]: list of boxes
     
     """
     final_dtype = dtype
