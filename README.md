@@ -1,5 +1,6 @@
 # TensorBank
 
+[![PyPI version](https://badge.fury.io/py/tensorbank.svg)](https://badge.fury.io/py/tensorbank)
 [![Build Status](https://travis-ci.com/pshved/tensorbank.svg?branch=master)](https://travis-ci.com/pshved/tensorbank)
 [![Documentation Status](https://readthedocs.org/projects/tensorbank/badge/?version=latest)](https://tensorbank.readthedocs.io/en/latest/?badge=latest)
 
