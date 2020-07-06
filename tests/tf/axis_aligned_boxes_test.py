@@ -103,17 +103,18 @@ class IntersectionAreaTest(unittest.TestCase):
 
     def testIntersectionSimple(self):
         # Test 1 batch of 2 boxes vs 3 boxes
-        boxes1 = np.array([
+        # Not numpy to test the auto conversion.
+        boxes1 = ([
             [[1.0, 1.5, 3.0, 3.0],
              [2.0, 2.5, 4.0, 4.0],
             ]
         ])
-        boxes2 = np.array([
+        boxes2 = [
             [[2.0, 2.5, 4.0, 4.0],
              [1.0, 1.5, 3.0, 3.0],
              [0.0, 0.0, 0.0, 0.0],
             ],
-        ])
+        ]
 
         want = np.array([
             [[0.5, 3.0, 0.0],
@@ -121,8 +122,8 @@ class IntersectionAreaTest(unittest.TestCase):
             ],
         ])
 
-        self.assertEqual(boxes1.shape, (1, 2, 4))
-        self.assertEqual(boxes2.shape, (1, 3, 4))
+        self.assertEqual(np.array(boxes1).shape, (1, 2, 4))
+        self.assertEqual(np.array(boxes2).shape, (1, 3, 4))
         self.assertEqual(want.shape, (1, 2, 3))
 
         got = tb.axis_aligned_boxes.intersection_area(boxes1, boxes2)
@@ -130,7 +131,7 @@ class IntersectionAreaTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(got, want)
 
         # Test our box utils too.
-        got_via_box_utils = self.compute_good_answer(boxes1, boxes2)
+        got_via_box_utils = self.compute_good_answer(np.array(boxes1), np.array(boxes2))
         np.testing.assert_almost_equal(got_via_box_utils, want)
 
 
@@ -164,16 +165,17 @@ class IntersectionAreaTest(unittest.TestCase):
 
     def testIntersectionEmpty(self):
         # Test 1 batch of 2 boxes vs 3 boxes
-        boxes1 = np.array([
+        # Not numpy to test the auto conversion.
+        boxes1 = [
             [[1.0, 1.5, 3.0, 3.0],
              [2.0, 2.5, 4.0, 4.0],
             ]
-        ])
-        boxes2 = np.array([
+        ]
+        boxes2 = [
             [[5.0, 6.0, 7.0, 8.0],
              [0.0, 0.0, 1.0, 3.0],
             ],
-        ])
+        ]
 
         want = np.array([
             [[0.0, 0.0],
@@ -186,24 +188,25 @@ class IntersectionAreaTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(got, want)
 
         # Test our box utils too.
-        got_via_box_utils = self.compute_good_answer(boxes1, boxes2)
+        got_via_box_utils = self.compute_good_answer(np.array(boxes1), np.array(boxes2))
         np.testing.assert_almost_equal(got_via_box_utils, want)
 
 
 class IntersectionTest(unittest.TestCase):
     def testIntersectionSimple(self):
         # Test 1 batch of 2 boxes vs 3 boxes
-        boxes1 = np.array([
+        # Not numpy to test the auto conversion.
+        boxes1 = [
             [[1.0, 1.5, 3.0, 3.0],
              [2.0, 2.5, 4.0, 4.0],
             ]
-        ])
-        boxes2 = np.array([
+        ]
+        boxes2 = [
             [[2.0, 2.5, 4.0, 4.0],
              [1.0, 1.5, 3.0, 3.0],
              [0.0, 0.0, 0.0, 0.0],
             ],
-        ])
+        ]
 
         want = np.array([
             [[ [2.0, 2.5, 3.0, 3.0], [1.0, 1.5, 3.0, 3.0], [1.0, 1.5, 0.0, 0.0]],
@@ -211,8 +214,8 @@ class IntersectionTest(unittest.TestCase):
             ],
         ])
 
-        self.assertEqual(boxes1.shape, (1, 2, 4))
-        self.assertEqual(boxes2.shape, (1, 3, 4))
+        self.assertEqual(np.array(boxes1).shape, (1, 2, 4))
+        self.assertEqual(np.array(boxes2).shape, (1, 3, 4))
         self.assertEqual(want.shape, (1, 2, 3, 4))
 
         got = tb.axis_aligned_boxes.intersection(boxes1, boxes2)
@@ -254,17 +257,18 @@ class AreaTest(unittest.TestCase):
 
     def testSimple(self):
         # Test 1 batch of 2 boxes vs 3 boxes
-        boxes1 = np.array([
+        # Not numpy to test the auto conversion.
+        boxes1 = [
             [[1.0, 1.5, 3.0, 3.0],
              [2.0, 2.5, 4.0, 4.0],
             ]
-        ])
-        boxes2 = np.array([
+        ]
+        boxes2 = [
             [[2.0, 2.5, 4.0, 4.0],
              [0.0, 0.5, 3.0, 3.0],
              [0.0, 0.0, 0.0, 0.0],
             ],
-        ])
+        ]
 
         want1 = np.array([
             [3.0, 3.0],
@@ -274,8 +278,8 @@ class AreaTest(unittest.TestCase):
             [3.0, 7.5, 0.0],
         ])
 
-        self.assertEqual(boxes1.shape, (1, 2, 4))
-        self.assertEqual(boxes2.shape, (1, 3, 4))
+        self.assertEqual(np.array(boxes1).shape, (1, 2, 4))
+        self.assertEqual(np.array(boxes2).shape, (1, 3, 4))
         self.assertEqual(want1.shape, (1, 2))
         self.assertEqual(want2.shape, (1, 3))
 
@@ -285,7 +289,7 @@ class AreaTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(got2, want2)
 
         # Test our box utils too.
-        got_via_box_utils = self.compute_good_answer(boxes1)
+        got_via_box_utils = self.compute_good_answer(np.array(boxes1))
         np.testing.assert_almost_equal(got_via_box_utils, want1)
 
 
@@ -302,17 +306,18 @@ class IoUTest(unittest.TestCase):
 
     def testSimple(self):
         # Test 1 batch of 2 boxes vs 3 boxes
-        boxes1 = np.array([
+        # Not numpy to test the auto conversion.
+        boxes1 = [
             [[1.0, 1.5, 3.0, 3.0],
              [2.0, 2.5, 4.0, 4.0],
             ]
-        ])
-        boxes2 = np.array([
+        ]
+        boxes2 = [
             [[2.0, 2.5, 4.0, 4.0],
              [1.0, 1.5, 3.0, 3.0],
              [0.0, 0.0, 0.0, 0.0],
             ],
-        ])
+        ]
 
         want = np.array([
             [[0.5 / 5.5, 1.0,       0.0],
@@ -320,8 +325,8 @@ class IoUTest(unittest.TestCase):
             ],
         ])
 
-        self.assertEqual(boxes1.shape, (1, 2, 4))
-        self.assertEqual(boxes2.shape, (1, 3, 4))
+        self.assertEqual(np.array(boxes1).shape, (1, 2, 4))
+        self.assertEqual(np.array(boxes2).shape, (1, 3, 4))
         self.assertEqual(want.shape, (1, 2, 3))
 
         got = tb.axis_aligned_boxes.iou(boxes1, boxes2)
@@ -329,7 +334,8 @@ class IoUTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(got, want)
 
         # Test our box utils too.
-        got_via_box_utils = self.compute_good_answer(boxes1, boxes2)
+        got_via_box_utils = self.compute_good_answer(
+                np.array(boxes1), np.array(boxes2))
         np.testing.assert_almost_equal(got_via_box_utils, want)
 
     def testNan(self):

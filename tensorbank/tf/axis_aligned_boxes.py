@@ -115,6 +115,9 @@ def area(a):
     Returns:
         Tensor [...dims...]: box volumes using the standard volume metric in R^D.
     """
+
+    a = tf.convert_to_tensor(a)
+
     # Shape check
     shapes = list(a.shape)
     D = shapes[-1] // 2
@@ -161,6 +164,9 @@ def iou(a, b):
         Tensor [N x K x M]: pairwise box IoUs using the standard volume
         metric in R^D.
     """
+
+    a = tf.convert_to_tensor(a)
+    b = tf.convert_to_tensor(b)
 
     # Shape check
     assert len(b.shape) == 3, "Wrong shape of b: {}".format(b.shape)
@@ -226,7 +232,8 @@ def evenly_spaced(box_counts, box_sizes, image_shape, offset=None, dtype=tf.floa
         image_shape: D-tuple that defines the overall image shape.  Can be a
             tf.Tensor.
         offset: List (length S) of D-tuples that define the offset of the first
-            image from 0^D.  Can be a tf.Tensor.
+            image from 0^D.  Not yet implemented.
+        dtype (optional): type of the returned tensor.  Defaults to tf.float32
 
     Returns:
         Tensor [number_of_boxes x 2*D]: list of boxes
