@@ -7,6 +7,8 @@ license = "MIT"
 readme = "README.md"
 homepage = "http://github.com/pshved/tensorbank"
 packages = [{include = "tensorbank"}]
+documentation = "https://tensorbank.readthedocs.io/"
+repository = "https://github.com/pshved/tensorbank"
 
 [tool.poetry.dependencies]
 python = "^3.6"
