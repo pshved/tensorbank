@@ -58,3 +58,9 @@ jobs:
             tags: true
           # Make Travis use the before_deploy outputs here.
           skip_cleanup: true
+
+  exclude:
+    - python: 3.8
+      env: TF_VERSION=2.0
+    - python: 3.8
+      env: TF_VERSION=2.1
