@@ -4,14 +4,16 @@ python:
   - 3.7
   - 3.8
 
+# The installs are in the test stage config.
+install:
+  - pip install --upgrade pip
+  - pip install poetry
+  - poetry install -v
+
 jobs:
   include:
     - stage: test
       # test stage install needs more dependencies.
-      install:
-        - pip install --upgrade pip
-        - pip install poetry
-        - poetry install -v
       script: pytest
 
     - stage: deploy
