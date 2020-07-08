@@ -1,6 +1,8 @@
 """Advanced Tensor slicing
 ==========================
 
+Utilities for advanced tensor slicing and batching operations.
+
 
 Reference
 ---------
@@ -8,23 +10,44 @@ Reference
 import tensorflow as tf
 
 def slice_within_stride(x, stride, si=0, ei=None, keepdims=True):
-    """Select x[..., (i * stride + si):(i * stride + ei)] for each i.
+    """Select ``x[..., (i * stride + si):(i * stride + ei)]`` for each i.
 
     The tensor returned will have the last dimension shrunk by a factor of
-    (ei-si)/stride.
+    ``(ei-si)/stride``.
 
-    As a natural special case, ``tb.multiple_within_stride(x, 10)`` will simply
-    reshape the tensor by adding a dimension of size 10 at the end of ``x``'s
-    shape. 
+    As a natural special case, ``tb.multiple_within_stride(x, N)`` is
+    equivalent to adding a dimension of ``N`` at the end, as in
+    ``tf.expand_dims(x, (..., -1, N))``.
+
+    Example:
+
+        When predicting anchor positions in SSD, ``num_classes +
+        num_offsets`` are predicted for each anchor.  To get only the
+        class confidence, this would be used::
+
+            logits = model(input)
+            class_logits = tb.slice_within_stride(
+                logits,
+                0,
+                num_classes,
+                num_classes + num_offsets)
+            loss = softmax_cross_entropy_with_logits(
+                class_preds, class_logits)
 
     Args:
-        x (Tensor): value to modify
+        x (tf.Tensor): value to modify
         stride (int): stride for the last timension
-        si (int): starting index within stride.  Defaults to 0.
-        ei (int): end indes (1 element after the last) within stride.  Defaults
-            to ``None``, which means "until the last element".
-        keepdims (bool, default: True): if False, adds another dimension that
-            iterates over each stride.
+        si (int): starting index within stride.  Negative indices are
+            supported.  Defaults to 0.
+        ei (int): end index (1 element after the last) within stride.
+           Negative indices are supported. Defaults to ``None``, which
+           means "until the last element".
+        keepdims (bool): if False, adds another dimension that
+            iterates over each stride.  This dimension will be of size
+            ``ei-si``.  Defaults to True.
+
+    Returns:
+        tf.Tensor: modified ``x`` with the last dimension sliced.
 
     """
     step1 = tf.reshape(x, (-1, stride))

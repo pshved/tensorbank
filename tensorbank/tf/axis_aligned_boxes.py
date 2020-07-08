@@ -203,7 +203,7 @@ def evenly_spaced(box_counts, box_sizes, image_shape, offset=None, dtype=tf.floa
 
     Example:
 
-        The following function will return 12 boxes: 3 boxes centered in each
+        The following function will return 8 boxes: 2 boxes centered in each
         point of a 2x2 grid::
 
             tb.axis_aligned_boxes.evenly_spaced(
