@@ -1,24 +1,31 @@
 language: python
 python:
   - 3.6
-  - 3.7
   - 3.8
+
+env:
+  - TF_VERSION=2.0
+  - TF_VERSION=2.1
+  - TF_VERSION=2.2
 
 # The installs are in the test stage config.
 install:
   - pip install --upgrade pip
+  - pip install tensorflow==$TF_VERSION
   - pip install poetry
   - poetry install -v
+
+script: pytest
 
 jobs:
   include:
     - stage: test
-      # test stage install needs more dependencies.
-      script: pytest
+      # test stage defined outside of the config
 
     - stage: deploy
       # Use the earliest version of things for packaging (for backwards binary compatibility)
       python: 3.6
+      env: TF_VERSION=2.0
       install:
         - pip install --upgrade pip
         - pip install poetry
