@@ -20,6 +20,7 @@ sphinx = "^3.1.2"
 sphinx-rtd-theme = "^0.5.0"
 sphinx-autobuild = "^0.7.1"
 pytest = "^5.4.3"
+tomlkit = "^0.6.0"
 
 [build-system]
 requires = ["poetry>=1.0", "rtd-poetry-tmp"]
