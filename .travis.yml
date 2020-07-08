@@ -1,15 +1,16 @@
 language: python
 python:
   - 3.6
-install:
-  - pip install --upgrade pip
-  - pip install poetry
-  - poetry install -v
-script:
-  - pytest
+script: pytest
 
 jobs:
   include:
+    - stage: test
+      # test stage install needs more dependencies.
+      install:
+        - pip install --upgrade pip
+        - pip install poetry
+        - poetry install -v
     - stage: deploy
       # Use the earliest version of things for packaging (for backwards binary compatibility)
       python: 3.6
