@@ -17,9 +17,10 @@ env:
 install:
   - pip install --upgrade pip
   - pip install poetry
-  - pip install tensorflow==$TF_VERSION
-    # Work around https://github.com/python-poetry/poetry/issues/602 by https://stackoverflow.com/questions/58961497
-  - poetry update tensorflow==$TF_VERSION
+  #- pip install tensorflow==$TF_VERSION
+  # Work around https://github.com/python-poetry/poetry/issues/602
+  - poetry remove tensorflow
+  - poetry add tensorflow==$TF_VERSION
   - poetry install -v
 
 script: pytest
