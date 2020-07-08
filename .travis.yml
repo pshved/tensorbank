@@ -24,6 +24,8 @@ before_deploy:
 deploy:
   provider: script
   script: poetry publish
+  # Make Travis use the before_deploy outputs here.
+  skip_cleanup: true
 
 env:
   global:
