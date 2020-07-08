@@ -18,7 +18,7 @@ project to the next :-)
 ## Installation
 
 ```
-pip install tensorbank
+$ pip install tensorbank
 ```
 
 ## Usage
@@ -37,6 +37,18 @@ tb.axis_aligned_boxes.area(
 
 See [API Reference on Readthedocs][api] for the full list of the algorithms
 offered and comprehensive usage examples.
+
+### Development version
+
+[![PyPI version](https://badge.fury.io/py/tensorbank-dev.svg)](https://badge.fury.io/py/tensorbank-dev)
+
+If you want to install the push-on-green development version, do this
+*instead*:
+
+```
+$ pip install tensorbank-dev
+```
+
 
 [api]: https://tensorbank.readthedocs.io/
 
