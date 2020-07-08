@@ -1,41 +1,42 @@
 language: python
 python:
   - 3.6
-
-stages:
-  - test
+install:
+  - pip install --upgrade pip
+  - pip install poetry
+  - poetry install -v
+script:
+  - pytest
 
 jobs:
   include:
-    - stage: test
+    - stage: deploy
+      # Use the earliest version of things for packaging (for backwards binary compatibility)
+      python: 3.6
       install:
         - pip install --upgrade pip
         - pip install poetry
-        - poetry install -v --no-dev
-      script:
-        - pytest
+
+      before_deploy:
+        - poetry config http-basic.pypi "$PYPI_USER" "$PYPI_PASS"
+        - if [[ $TRAVIS_BRANCH == "master" ]] ; then poetry run python bump_autobuild_version.py; fi
+        - poetry build
 
 
-before_deploy:
-  - poetry config http-basic.pypi "$PYPI_USER" "$PYPI_PASS"
-  - if [[ $TRAVIS_BRANCH == "master" ]] ; then poetry run python bump_autobuild_version.py; fi
-  - poetry build
+      deploy:
+        - provider: script
+          script: poetry publish
+          on:
+            branch: master
+          # Make Travis use the before_deploy outputs here.
+          skip_cleanup: true
 
-
-deploy:
-  - provider: script
-    script: poetry publish
-    on:
-      branch: master
-    # Make Travis use the before_deploy outputs here.
-    skip_cleanup: true
-
-  - provider: script
-    script: poetry publish
-    on:
-      tags: true
-    # Make Travis use the before_deploy outputs here.
-    skip_cleanup: true
+        - provider: script
+          script: poetry publish
+          on:
+            tags: true
+          # Make Travis use the before_deploy outputs here.
+          skip_cleanup: true
 
 env:
   global:
