@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tensorbank"
-version = "0.2.0"
+version = "0.2.1"
 description = "a collection of assorted algorithms expressed in Tensors."
 authors = ["Paul Shved <pavel.shved@gmail.com>"]
 license = "MIT"
