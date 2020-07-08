@@ -14,18 +14,11 @@ jobs:
         - poetry install -v --no-dev
       script:
         - pytest
-    - stage: bump push on green version
-      install:
-        - poetry install -v
-      script:
-        - poetry run python bump_autobuild_version.py
-      on:
-        branch: master
-
 
 
 before_deploy:
   - poetry config http-basic.pypi "$PYPI_USER" "$PYPI_PASS"
+  - if [[ $TRAVIS_BRANCH == "master" ]] ; then poetry run python bump_autobuild_version.py; fi
   - poetry build
 
 
