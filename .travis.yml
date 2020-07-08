@@ -16,7 +16,7 @@ jobs:
         - pytest
 
 before_deploy:
-  - poetry config http-basic.pypi '$PYPI_USER' '$PYPI_PASS'
+  - poetry config http-basic.pypi "$PYPI_USER" "$PYPI_PASS"
   - poetry run python bump_autobuild_version.py
   - poetry build
 
