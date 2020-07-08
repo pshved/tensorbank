@@ -36,7 +36,7 @@ def slice_within_stride(x, stride, si=0, ei=None, keepdims=True):
 
     Args:
         x (tf.Tensor): value to modify
-        stride (int): stride for the last timension
+        stride (int): stride for the last dimension
         si (int): starting index within stride.  Negative indices are
             supported.  Defaults to 0.
         ei (int): end index (1 element after the last) within stride.

@@ -30,8 +30,8 @@ prefix:
 import tensorbank.tf as tb
 
 tb.axis_aligned_boxes.area(
-	 [[1, 1, 2, 2],
-		[-1, -1, 1, 2]])
+    [[1, 1, 2, 2],
+     [-1, -1, 1, 2]])
 >>> tf.Tensor([1 6], shape=(2,), dtype=int32)
 ```
 
